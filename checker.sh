@@ -8,7 +8,7 @@ function test_accessible {
     diff -q -Z out/accessible.out ref/accessible.ref > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-        printf "accessible F A I L E D\n"
+        printf "accessible FAILED\n"
     else
         printf "accessible PASSED\n"
     fi
@@ -24,7 +24,7 @@ function test_productive {
     diff -q -Z out/productive.out ref/productive.ref > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-        printf "productive F A I L E D\n"
+        printf "productive FAILED\n"
     else
         printf "productive PASSED\n"
     fi
@@ -40,7 +40,7 @@ function test_utils {
     diff -q -Z out/utils.out ref/utils.ref > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-        printf "utils F A I L E D\n"
+        printf "utils FAILED\n"
     else
         printf "utils PASSED\n"
     fi

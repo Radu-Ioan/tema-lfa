@@ -37,7 +37,6 @@ int main(int argc, char const *argv[])
     }
 
     string problem(argv[1]);
-    cout << "problem: " << problem << endl;
 
     ifstream in_stream(problem + ".in");
     ofstream out_stream(problem + ".out");
