@@ -9,7 +9,7 @@ void find_accessible_states(vector<vector<int>> &edge,
                             vector<int> &final_states,
                             ofstream &out)
 {
-    
+
 }
 
 void find_productive_states(vector<vector<int>> &edge,
@@ -40,7 +40,7 @@ int main(int argc, char const *argv[])
     cout << "problem: " << problem << endl;
 
     ifstream in_stream(problem + ".in");
-    ifstream out_stream(problem + ".out");
+    ofstream out_stream(problem + ".out");
 
     int n, m, s, f;
     in_stream >> n >> m >> s >> f;
@@ -67,11 +67,11 @@ int main(int argc, char const *argv[])
         in_stream >> final_states[i];
 
     if (problem == "accessible")
-        find_accessible_states(edge, start_states, final_states);
+        find_accessible_states(edge, start_states, final_states, out_stream);
     else if (problem == "productive")
-        find_productive_states(edge, start_states, final_states);
+        find_productive_states(edge, start_states, final_states, out_stream);
     else if (problem == "utils")
-        find_util_states(edge, start_states, final_states);
+        find_util_states(edge, start_states, final_states, out_stream);
 
     in_stream.close();
     out_stream.close();
