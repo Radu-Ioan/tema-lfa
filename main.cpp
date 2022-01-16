@@ -6,24 +6,21 @@ using namespace std;
 
 void find_accessible_states(vector<vector<int>> &edge,
                             vector<int> &start_states,
-                            vector<int> &final_states,
-                            ofstream &out)
+                            vector<int> &final_states)
 {
 
 }
 
 void find_productive_states(vector<vector<int>> &edge,
                             vector<int> &start_states,
-                            vector<int> &final_states,
-                            ofstream &out)
+                            vector<int> &final_states)
 {
 
 }
 
 void find_util_states(vector<vector<int>> &edge,
                       vector<int> &start_states,
-                      vector<int> &final_states,
-                      ofstream &out)
+                      vector<int> &final_states)
 {
     
 }
@@ -38,11 +35,8 @@ int main(int argc, char const *argv[])
 
     string problem(argv[1]);
 
-    ifstream in_stream(problem + ".in");
-    ofstream out_stream(problem + ".out");
-
     int n, m, s, f;
-    in_stream >> n >> m >> s >> f;
+    cin >> n >> m >> s >> f;
 
     // edge[0][map('a')] = urmatorul nod din starea 0 pe simbolul a;
     // ca memorie, sunt n vectori de cate m elemente capacitate fiecare
@@ -50,7 +44,7 @@ int main(int argc, char const *argv[])
     vector<vector<int>> edge(n, vector<int>(m));
     for (int i = 0; i < n; i++)
         for (int j = 0; j < m; j++)
-            in_stream >> edge[i][j];
+            cin >> edge[i][j];
 
     vector<int> start_states;
     vector<int> final_states;
@@ -61,18 +55,15 @@ int main(int argc, char const *argv[])
         final_states = vector<int>(f);
 
     for (int i = 0; i < s; i++)
-        in_stream >> start_states[i];
+        cin >> start_states[i];
     for (int i = 0; i < f; i++)
-        in_stream >> final_states[i];
+        cin >> final_states[i];
 
     if (problem == "accessible")
-        find_accessible_states(edge, start_states, final_states, out_stream);
+        find_accessible_states(edge, start_states, final_states);
     else if (problem == "productive")
-        find_productive_states(edge, start_states, final_states, out_stream);
+        find_productive_states(edge, start_states, final_states);
     else if (problem == "utils")
-        find_util_states(edge, start_states, final_states, out_stream);
-
-    in_stream.close();
-    out_stream.close();
+        find_util_states(edge, start_states, final_states);
     return 0;
 }
