@@ -1,0 +1,26 @@
+test.sh e programul care evalueaza tema. Trebuie sa se afle in radacina temei, in directorul unde e si Makefile.
+
+checker contine fisiere auxiliare temei:
+-check.c: program care evalueaza secventa de sincronizare pentru un automat
+
+checker/tests contine testele in sine:
+-<test>.in: intrarile pe care le primeste programul (automat sau labirint)
+-<test>.in.original: intrari pe care le poate primi programul, cu starile sortate in ordinea circulara pentru automate orientabile
+-<test>.in.dfa: labirint convertit la automat, e folosit pentru a verifica secventa de sincronizare
+-<test>.out: iesirea pe care trebuie sa o afiseze programul la iesirea standard, in cazul în care e unica
+
+checker/logs: aici veti gasi fisierele cu probleme daca pica teste:
+-<test>.command: comanda care ruleaza testul. Trebuie rulata din radacina temei
+-<test>.out: iesirea standard a programului
+
+test.sh:
+-limita de timp pentru un test este de 20 de secunde, 150 de secunde pentru toate testele
+-daca limbajul folosit e python, limitele de timp sunt dublate
+
+mytime.cfg:
+-contine linii formate din nume test urmat de o valoare numerica rationala, care reprezinta limita de timp in secunde pe care o doriti pentru un test.
+-daca numarul e 0, testul va fi ignorat
+-puteti folosi pentru a ignora un test care cicleaza infinit
+-puteti folosi pentru a extinde limita de timp pentru un test mai lent
+-daca il folositi, trebuie sa fie in radacina arhivei, langa Makefile
+-e optional

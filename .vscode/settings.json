@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "README": "raw",
+        "type_traits": "cpp"
+    }
+}

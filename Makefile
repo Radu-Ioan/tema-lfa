@@ -15,5 +15,8 @@ debug: main.cpp
 run: $(BIN)
 	./$< $(problem)
 
+labyrinth:
+	$(CC) -o $(BIN) bonus.cpp $(CFLAGS)
+
 clean:
 	rm -rf *.o debug $(BIN)

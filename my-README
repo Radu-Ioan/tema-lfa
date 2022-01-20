@@ -1,0 +1,14 @@
+pentru a folosi mai putina memorie, am folosit un vector de masti de 8 biti
+pentru stari/noduri
+
+Pentru o stare oarecare, masca de biti states_mask[i] are urmatoarea
+semnificatie:
+
+7 6 5 4 3 2 1 0
+0 0 0 0 0 0 0 0
+          | | |
+          | | |
+          | | setat daca starea e finala
+          | |
+          | setat daca starea e productiva
+          setat daca starea e vizitata
