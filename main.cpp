@@ -5,18 +5,30 @@
 
 using namespace std;
 
-#define VISITED_FLAG (uint8_t) 1
-#define FINAL_STATE_FLAG (uint8_t) 2
-#define PRODUCTIVE_FLAG (uint8_t) 4
+#define DISCOVERED_FLAG (uint8_t) 1
+#define VISITED (uint8_t) 3
+#define FINAL_STATE_FLAG (uint8_t) 4
+#define PRODUCTIVE_FLAG (uint8_t) 8
+#define ACCESSIBLE_FLAG (uint8_t) 16
 
 inline bool is_visited(int u, const vector<uint8_t> &masks)
 {
-    return masks[u] & VISITED_FLAG;
+    return masks[u] & VISITED;
+}
+
+inline bool is_discovered(int u, const vector<uint8_t> &masks)
+{
+    return masks[u] & DISCOVERED_FLAG;
 }
 
 inline bool is_final_state(int u, const vector<uint8_t> &masks)
 {
     return masks[u] & FINAL_STATE_FLAG;
+}
+
+inline bool is_accessible(int u, const vector<uint8_t> &masks)
+{
+    return masks[u] & ACCESSIBLE_FLAG;
 }
 
 inline bool is_productive(int u, const vector<uint8_t> &masks)
@@ -25,19 +37,19 @@ inline bool is_productive(int u, const vector<uint8_t> &masks)
 }
 
 void accessible_dfs(int u, const vector<vector<int>> &edge,
-                    vector<bool> &is_accessible)
+                    vector<uint8_t> &states_masks)
 {
     list<int> stack = {u};
 
     while (!stack.empty()) {
         int v = stack.front();
         stack.pop_front();
-        is_accessible[v] = true;
+        states_masks[v] |= ACCESSIBLE_FLAG;
 
         for (size_t c = 0; c < edge[v].size(); c++) {
             int w = edge[v][c];
 
-            if (!is_accessible[w]) {
+            if (!is_accessible(w, states_masks)) {
                 stack.push_front(w);
             }
         }
@@ -45,71 +57,70 @@ void accessible_dfs(int u, const vector<vector<int>> &edge,
 }
 
 void find_accessible_states(vector<vector<int>> &edge,
-                            vector<int> &start_states)
+                            vector<int> &start_states,
+                            vector<uint8_t> &states_masks)
 {
-    vector<bool> is_accessible(edge.size(), false);
-
     for (int u : start_states)
-        if (!is_accessible[u])
-            accessible_dfs(u, edge, is_accessible);
+        if (!is_accessible(u, states_masks))
+            accessible_dfs(u, edge, states_masks);
 
     for (size_t u = 0; u < edge.size(); u++)
-        if (is_accessible[u])
+        if (is_accessible(u, states_masks))
             cout << u << endl;
+}
+
+void reverse_productive_dfs(int u, const vector<vector<int>> &edge,
+                            vector<uint8_t> &states_masks,
+                            vector<list<int>> &parents)
+{
+    for (auto v : parents[u]) {
+        if (!is_productive(v, states_masks)) {
+            states_masks[v] |= PRODUCTIVE_FLAG;
+            reverse_productive_dfs(v, edge, states_masks, parents);
+        }
+    }
 }
 
 void productive_dfs(int u, const vector<vector<int>> &edge,
                     vector<uint8_t> &states_masks,
-                    vector<int> &p)
+                    vector<list<int>> parents)
 {
     list<int> stack = {u};
+    states_masks[u] |= DISCOVERED_FLAG;
 
     while (!stack.empty()) {
         int v = stack.front();
         stack.pop_front();
-        states_masks[v] |= VISITED_FLAG;
 
         if (is_final_state(v, states_masks)) {
             // o stare finala e automat productiva
             states_masks[v] |= PRODUCTIVE_FLAG;
+        }
 
-            int prev = p[v];
-
-            while (prev != -1) {
-                if (is_productive(prev, states_masks)) {
-                    // nodurile din calea pana la o radacina deja au fost
-                    // setate ca productive la o alta parcurgere
-                    break;
-                } else {
-                    states_masks[prev] |= PRODUCTIVE_FLAG;
-                    prev = p[prev];
-                }
-            }
+        if (is_productive(v, states_masks)) {
+            reverse_productive_dfs(v, edge, states_masks, parents);
         }
 
         for (size_t c = 0; c < edge[v].size(); c++) {
             int w = edge[v][c];
 
-            // sau
-            // if (p[w] == -1)
-            if (!is_visited(w, states_masks)) {
-                p[w] = v;
+            if (!is_discovered(w, states_masks)) {
+                states_masks[w] |= DISCOVERED_FLAG;
                 stack.push_front(w);
             }
         }
+
+        states_masks[v] |= VISITED;
     }
 }
 
 void find_productive_states(const vector<vector<int>> &edge,
-                            vector<uint8_t> &states_masks)
+                            vector<uint8_t> &states_masks,
+                            const vector<list<int>> &parents)
 {
-    vector<int> p(edge.size(), -1);
-    // incearca mai bine ceva cu
-    list<int> parents(edge.size());
-
     for (size_t u = 0; u < edge.size(); u++)
-        if (!is_visited(u, states_masks))
-            productive_dfs(u, edge, states_masks, p);
+        if (!is_discovered(u, states_masks))
+            productive_dfs(u, edge, states_masks, parents);
 
     for (size_t u = 0; u < edge.size(); u++)
         if (is_productive(u, states_masks))
@@ -118,9 +129,16 @@ void find_productive_states(const vector<vector<int>> &edge,
 
 void find_util_states(vector<vector<int>> &edge,
                       vector<int> &start_states,
-                      vector<uint8_t> &states_masks)
+                      vector<uint8_t> &states_masks,
+                      const vector<list<int>> &parents)
 {
-    
+    // for (int u: )
+    //     if (!is_discovered(u, states_masks))
+    //         productive_dfs(u, edge, states_masks, parents);
+
+    for (size_t u = 0; u < edge.size(); u++)
+        if (is_productive(u, states_masks))
+            cout << u << endl;
 }
 
 
@@ -140,31 +158,53 @@ int main(int argc, char const *argv[])
     // ca memorie, sunt n vectori de cate m elemente capacitate fiecare
     // urmeaza sa fie initializate
     vector<vector<int>> edge(n, vector<int>(m));
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
-            cin >> edge[i][j];
+
+    // necesar pentru cautarea in adancime la productive si utils
+    vector<list<int>> parents;
+
+    if (problem == "productive" || problem == "accessible") {
+        parents = vector<list<int>>(n);
+
+        int next_state;
+        for (int i = 0; i < n; i++) {
+            for (int c = 0; c < m; c++) {
+                cin >> next_state;
+                edge[i][c] = next_state;
+
+                if ((parents[next_state].empty()
+                        || parents[next_state].front() != i)
+                    && next_state != i)
+                parents[next_state].push_front(i);
+            }
+        }
+    } else {
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < m; j++)
+                cin >> edge[i][j];
+    }
 
     vector<int> start_states;
-    vector<uint8_t> states_mask;
+    vector<uint8_t> states_mask(n, 0);
 
-    if (s > 0)
+    if (s > 0) {
         start_states = vector<int>(s);
-    if (f > 0)
-        states_mask = vector<uint8_t>(n, 0);
+        for (int i = 0; i < s; i++)
+            cin >> start_states[i];
+    }
 
-    for (int i = 0; i < s; i++)
-        cin >> start_states[i];
-    for (int i = 0; i < f; i++) {
-        int state;
-        cin >> state;
-        states_mask[state] |= FINAL_STATE_FLAG;
+    if (f > 0) {
+        for (int i = 0; i < f; i++) {
+            int state;
+            cin >> state;
+            states_mask[state] |= FINAL_STATE_FLAG;
+        }
     }
 
     if (problem == "accessible")
-        find_accessible_states(edge, start_states);
+        find_accessible_states(edge, start_states, states_mask);
     else if (problem == "productive")
-        find_productive_states(edge, states_mask);
+        find_productive_states(edge, states_mask, parents);
     else if (problem == "utils")
-        find_util_states(edge, start_states, states_mask);
+        find_util_states(edge, start_states, states_mask, parents);
     return 0;
 }
