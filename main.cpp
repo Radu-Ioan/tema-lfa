@@ -121,7 +121,7 @@ void find_productive_states(const vector<vector<int>> &edge,
             cout << u << endl;
 }
 
-void find_util_states(vector<vector<int>> &edge,
+void find_useful_states(vector<vector<int>> &edge,
                       vector<int> &start_states,
                       vector<uint8_t> &states_masks,
                       const vector<list<int>> &parents)
@@ -198,6 +198,6 @@ int main(int argc, char const *argv[])
     else if (problem == "productive")
         find_productive_states(edge, states_mask, parents);
     else if (problem == "useful")
-        find_util_states(edge, start_states, states_mask, parents);
+        find_useful_states(edge, start_states, states_mask, parents);
     return 0;
 }
