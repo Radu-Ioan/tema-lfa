@@ -165,9 +165,9 @@ int main(int argc, char const *argv[])
                 edge[i][c] = next_state;
 
                 if ((parents[next_state].empty()
-                        || parents[next_state].front() != i)
-                    && next_state != i)
-                parents[next_state].push_front(i);
+                                || parents[next_state].front() != i)
+                            && next_state != i)
+                    parents[next_state].push_front(i);
             }
         }
     } else {
