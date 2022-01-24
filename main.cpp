@@ -182,21 +182,25 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
     vector<int> y = {};
 
     vector<bool> is_active_state(n, true);
-    int active_states = n;
+    vector<bool> is_destination_state(n, false);
+
+    int active_states = 0;
 
     vector<vector<bool>> visited(n, vector<bool>(n, false));
-    vector<int> str_to_append = {};
 
-    while (active_states > 1) {
+    while (true) {
         active_states = 0;
 
         for (int k = 0; k < n; k++) {
+            if (!is_active_state[k])
+                continue;
+
             int state = k;
-            for (size_t i = 0; i < y.size(); i++) {
+            for (size_t i = 0; i < y.size(); i++)
                 state = edge[state][y[i]];
-            }
-            if (!is_active_state[state]) {
-                is_active_state[state] = true;
+
+            if (!is_destination_state[state]) {
+                is_destination_state[state] = true;
                 ++active_states;
             }
         }
@@ -219,18 +223,18 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
         list<pair<pair<int, int>, vector<int>>>
                 q = {{{s0, t0}, {}}};
 
-        // aici se refac visited si str_to_append
+        // aici se refac visited si y
         for (i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
-            visited[i][j] = false;
-        str_to_append.clear();
+                visited[i][j] = false;
         y.clear();
 
         // bfs ul in automatul produs ca sa gasesc merging sequence
         while (!q.empty()) {
-            auto &[state_pair, str_to_here] = q.front();
+            auto [state_pair, str_to_here] = q.front();
             auto [state_i, state_j] = state_pair;
             visited[state_i][state_j] = true;
+            q.pop_front();
 
             for (auto c = 0; c < m; c++) {
                 auto [next_state_i, next_state_j]
@@ -249,15 +253,18 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
                     q.push_back({{next_state_i, next_state_j}, str_to_here});
                 }
             }
-
-            q.pop_front();
         }
 
         for (int a : y)
             x.emplace_back(a);
 
-        for (i = 0; i < n; i++)
-            is_active_state[i] = false;
+        if (active_states <= 1)
+            break;
+
+        for (i = 0; i < n; i++) {
+            is_active_state[i] = is_destination_state[i];
+            is_destination_state[i] = false;
+        }
     }
 
     for (size_t i = 0; i < x.size(); i++)
