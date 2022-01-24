@@ -226,10 +226,9 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
         str_to_append.clear();
         y.clear();
 
+        // bfs ul in automatul produs ca sa gasesc merging sequence
         while (!q.empty()) {
-            auto [state_pair, str_to_here] = q.front();
-            q.pop_front();
-
+            auto &[state_pair, str_to_here] = q.front();
             auto [state_i, state_j] = state_pair;
             visited[state_i][state_j] = true;
 
@@ -250,6 +249,8 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
                     q.push_back({{next_state_i, next_state_j}, str_to_here});
                 }
             }
+
+            q.pop_front();
         }
 
         for (int a : y)
