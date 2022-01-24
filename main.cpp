@@ -75,6 +75,24 @@ void reverse_productive_dfs(int u, const vector<vector<int>> &edge,
     }
 }
 
+void reverse_productive_bfs(int u, const vector<vector<int>> &edge,
+                            vector<uint8_t> &states_masks,
+                            vector<list<int>> &parents)
+{
+    list<int> queue = {u};
+    while (!queue.empty()) {
+        int v = queue.front();
+        queue.pop_front();
+
+        for (auto w : parents[v]) {
+            if (!is_productive(w, states_masks)) {
+                states_masks[w] |= PRODUCTIVE_FLAG;
+                queue.push_back(w);
+            }
+        }
+    }
+}
+
 void productive_dfs(int u, const vector<vector<int>> &edge,
                     vector<uint8_t> &states_masks,
                     vector<list<int>> parents)
@@ -92,7 +110,8 @@ void productive_dfs(int u, const vector<vector<int>> &edge,
         }
 
         if (is_productive(v, states_masks)) {
-            reverse_productive_dfs(v, edge, states_masks, parents);
+            // reverse_productive_dfs(v, edge, states_masks, parents);
+            reverse_productive_bfs(v, edge, states_masks, parents);
         }
 
         for (size_t c = 0; c < edge[v].size(); c++) {
@@ -133,6 +152,116 @@ void find_useful_states(vector<vector<int>> &edge,
     for (size_t u = 0; u < edge.size(); u++)
         if (is_discovered(u, states_masks) && is_productive(u, states_masks))
             cout << u << endl;
+}
+
+void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
+{
+    int n = edge.size();
+    int m = edge[0].size();
+
+    // automatul produs: contine toate submultimile de cate 2 elemente,
+    // prod_autom_edges[i][j][c] = urmatoarea stare din starea produs (i, j)
+    // primind simbolul c
+    vector<vector<vector<pair<int, int>>>>
+                prod_autom_edges(n, vector<vector<pair<int, int>>>(
+                                            n, vector<pair<int, int>>(m)));
+
+    for (int i = 0; i < n; i++) {
+        for (int j = i; j < n; j++) {
+            for (int c = 0; c < m; c++) {
+                int next_state_for_i = edge[i][c];
+                int next_state_for_j = edge[j][c];
+
+                prod_autom_edges[i][j][c] = prod_autom_edges[j][i][c]
+                    = {next_state_for_i, next_state_for_j};
+            }
+        }
+    }
+
+    vector<int> x = {};
+    vector<int> y = {};
+
+    vector<bool> is_active_state(n, true);
+    int active_states = n;
+
+    vector<vector<bool>> visited(n, vector<bool>(n, false));
+    vector<int> str_to_append = {};
+
+    while (active_states > 1) {
+        active_states = 0;
+
+        for (int k = 0; k < n; k++) {
+            int state = k;
+            for (size_t i = 0; i < y.size(); i++) {
+                state = edge[state][y[i]];
+            }
+            if (!is_active_state[state]) {
+                is_active_state[state] = true;
+                ++active_states;
+            }
+        }
+
+        int s0, t0;
+        int i;
+        for (i = 0; i < n; i++) {
+            if (is_active_state[i]) {
+                s0 = i;
+                break;
+            }
+        }
+        for (i = i + 1; i < n; i++) {
+            if (is_active_state[i]) {
+                t0 = i;
+                break;
+            }
+        }
+
+        list<pair<pair<int, int>, vector<int>>>
+                q = {{{s0, t0}, {}}};
+
+        // aici se refac visited si str_to_append
+        for (i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+            visited[i][j] = false;
+        str_to_append.clear();
+        y.clear();
+
+        while (!q.empty()) {
+            auto [state_pair, str_to_here] = q.front();
+            q.pop_front();
+
+            auto [state_i, state_j] = state_pair;
+            visited[state_i][state_j] = true;
+
+            for (auto c = 0; c < m; c++) {
+                auto [next_state_i, next_state_j]
+                    = prod_autom_edges[state_i][state_j][c];
+
+                if (visited[next_state_i][next_state_j])
+                    continue;
+
+                if (next_state_i == next_state_j) {
+                    y = str_to_here;
+                    y.emplace_back(c);
+                    q.clear();
+                    break;
+                } else {
+                    str_to_here.emplace_back(c);
+                    q.push_back({{next_state_i, next_state_j}, str_to_here});
+                }
+            }
+        }
+
+        for (int a : y)
+            x.emplace_back(a);
+
+        for (i = 0; i < n; i++)
+            is_active_state[i] = false;
+    }
+
+    for (size_t i = 0; i < x.size(); i++)
+        cout << x[i] << ' ';
+    cout << endl;
 }
 
 int main(int argc, char const *argv[])
@@ -199,5 +328,7 @@ int main(int argc, char const *argv[])
         find_productive_states(edge, states_mask, parents);
     else if (problem == "useful")
         find_useful_states(edge, start_states, states_mask, parents);
+    else if (problem == "synchronize")
+        find_syncronize_sequence_trivial(edge);
     return 0;
 }
