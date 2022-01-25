@@ -193,6 +193,10 @@ void read_input(const string &problem, int n, int m, int s, int f,
             cin >> state;
             states_mask[state] |= FINAL_STATE_FLAG;
         }
+    } else {
+        // pentru sincronizarea restrictionata
+        for (int i = 0; i < n; i++)
+            states_mask[i] |= FINAL_STATE_FLAG;
     }
 }
 
@@ -211,7 +215,7 @@ int main(int argc, char const *argv[])
     // ce urmeaza sa fie initializate
     vector<vector<int>> edge(n, vector<int>(m));
 
-    // necesar pentru cautarea in adancime la productive si useful
+    // necesar pentru cautarea inapoi la productive si useful
     vector<list<int>> parents;
 
     vector<int> start_states;

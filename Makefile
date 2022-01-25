@@ -1,6 +1,6 @@
 CC = g++ 
-CFLAGS = -Wall -std=c++17 -g
-# CFLAGS = -Wall -std=c++17
+# CFLAGS = -Wall -std=c++17 -g
+CFLAGS = -Wall -std=c++17
 
 
 BIN = main
