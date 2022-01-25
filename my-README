@@ -12,3 +12,9 @@ semnificatie:
           | |
           | setat daca starea e productiva
           setat daca starea e vizitata
+
+Ca sa gasesti cel mai scurt sir de sincronizare e NP Hard si de aia se facea
+automatul ala in care combinai toate submultimile de stari si iesea
+complexitate exponentiala.
+Ca sa gasesti unul oarecare, aplici algoritmul cu automatul produs prezentat in
+documentatie.

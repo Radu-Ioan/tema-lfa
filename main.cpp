@@ -4,13 +4,9 @@
 #include <list>
 
 #include "synchronize.h"
+#include "flags.h"
 
 using namespace std;
-
-#define DISCOVERED_FLAG (uint8_t) 1
-#define VISITED (uint8_t) 3
-#define PRODUCTIVE_FLAG (uint8_t) 4
-#define FINAL_STATE_FLAG (uint8_t) 8
 
 inline bool is_discovered(int u, const vector<uint8_t> &masks)
 {
@@ -183,8 +179,12 @@ void read_input(const string &problem, int n, int m, int s, int f,
 
     if (s > 0) {
         start_states = vector<int>(s);
-        for (int i = 0; i < s; i++)
-            cin >> start_states[i];
+        for (int i = 0; i < s; i++) {
+            int state;
+            cin >> state;
+            start_states[i] = state;
+            states_mask[state] |= START_STATE_FLAG;
+        }
     }
 
     if (f > 0) {
@@ -226,6 +226,6 @@ int main(int argc, char const *argv[])
     else if (problem == "useful")
         find_useful_states(edge, start_states, states_mask, parents);
     else if (problem == "synchronize")
-        find_syncronize_sequence_trivial(edge);
+        find_syncronize_sequence_trivial(edge, start_states, states_mask);
     return 0;
 }

@@ -1,16 +1,25 @@
-CFLAGS =  -g
 CC = g++ 
-CFLAGS = -Wall -std=c++17
+CFLAGS = -Wall -std=c++17 -g
+# CFLAGS = -Wall -std=c++17
+
 
 BIN = main
+SOURCES = main.cpp synchronize.cpp
+OBJ = $(patsubst %.cpp,%.o,$(SOURCES))
 
 build: $(BIN)
 
-$(BIN): main.cpp
+$(BIN): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-debug: main.cpp
-	$(CC) -o $@ $^ $(CFLAGS)
+main.o: main.cpp
+	$(CC) -o $@ $< $(CFLAGS) -c
+
+synchronize.o:	synchronize.cpp
+	$(CC) -o $@ $< $(CFLAGS) -c
+
+debug: $(SOURCES)
+	$(CC) -o $(BIN) $^ $(CFLAGS)
 
 run: $(BIN)
 	./$< $(problem)

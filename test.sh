@@ -110,6 +110,7 @@ run_tests (){
         fi
 
         echo "Time left ${TIME_LEFT}"
+        echo ""
     done < ${TEST_DIR}/tests
 }
 
