@@ -1,17 +1,37 @@
-pentru a folosi mai putina memorie, am folosit un vector de masti de 8 biti
-pentru stari/noduri
+336CA Zamfirescu Radu Ioan
 
-Pentru o stare oarecare, masca de biti states_mask[i] are urmatoarea
-semnificatie:
+Task 1 - accessible
+Am aplicat un simplu dfs plecand numai din starile date initiale la input, iar
+starile accesibile erau reprezentate de toate starile prin care se ajungea cel
+putin o data prin aceste parcurgeri.
 
-7 6 5 4 3 2 1 0
-0 0 0 0 0 0 0 0
-          | | |
-          | | |
-          | | setat daca starea e finala
-          | |
-          | setat daca starea e productiva
-          setat daca starea e vizitata
+Task 2 - productive
+La citire, am mai format un vector de parinti in care am retinut ce noduri
+pot ajunge in fiecare stare. Formal: parents[i] = multimea tuturor starilor
+care au cel putin o tranzitie care le aduce in starea i.
+Astfel, pentru a gasi starile productive, am pornit un dfs cu scopul de a
+trece prin fiecare stare, iar atunci cand gaseam una productiva, ma foloseam de
+reprezentarea facuta cu parents si porneam o cautare inapoi in care marcam
+productive toate nodurile intalnite in aceasta cautare. Prima oara am
+implementat cu dfs cautarea inapoi, dar pentru a nu mai folosi apeluri
+recursive, am ales sa folosesc bfs, care avea acelasi efect fiind vorba de
+vizitarea unor noduri dintr-un graf.
+
+Task 3 - useful
+Acelasi algoritm ca la productive, doar ca inceperea cautarii am
+restrictionat-o sa fie doar din starile de start. La final, am cautat sa vad
+starile care au fost marcat atat ca accesibile (descoperite in cod) cat si
+productive.
+
+Task 4 - synchronize
+Am folosit Algorithm 2 prezentat in Homing.pdf dat la surse.
+Ca reprezentare, am folosit un cate o masca de biti pentru fiecare stare pentru
+a vedea daca e activa (i.e se ajunge in ea pornind dintr-o stare din automat
+avand sirul x la intrare - sir x care se construieste pe parcursul algoritmului
+si care in cod nu se memoreaza, pentru ca se afiseaza direct acel sir y dupa
+fiecare iteratie).
+
+mai bine pui comentarii, decat sa o lungesti pe aicea
 
 Ca sa gasesti cel mai scurt sir de sincronizare e NP Hard si de aia se facea
 automatul ala in care combinai toate submultimile de stari si iesea
