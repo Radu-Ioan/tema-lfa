@@ -156,27 +156,10 @@ void find_useful_states(vector<vector<int>> &edge,
             cout << u << endl;
 }
 
-
-int main(int argc, char const *argv[])
+void read_input(const string &problem, int n, int m, int s, int f,
+                vector<vector<int>> &edge, vector<list<int>> &parents,
+                vector<int> &start_states, vector<uint8_t> &states_mask)
 {
-    if (argc < 2) {
-        cout << "Usage: ./main <problem>" << endl;
-        return 0;
-    }
-
-    string problem(argv[1]);
-
-    int n, m, s, f;
-    cin >> n >> m >> s >> f;
-
-    // edge[0][map('a')] = urmatorul nod din starea 0 pe simbolul a;
-    // ca memorie, sunt n vectori de cate m elemente capacitate fiecare
-    // ce urmeaza sa fie initializate
-    vector<vector<int>> edge(n, vector<int>(m));
-
-    // necesar pentru cautarea in adancime la productive si useful
-    vector<list<int>> parents;
-
     if (problem == "productive" || problem == "useful") {
         parents = vector<list<int>>(n);
 
@@ -198,9 +181,6 @@ int main(int argc, char const *argv[])
                 cin >> edge[i][j];
     }
 
-    vector<int> start_states;
-    vector<uint8_t> states_mask(n, 0);
-
     if (s > 0) {
         start_states = vector<int>(s);
         for (int i = 0; i < s; i++)
@@ -214,6 +194,30 @@ int main(int argc, char const *argv[])
             states_mask[state] |= FINAL_STATE_FLAG;
         }
     }
+}
+
+int main(int argc, char const *argv[])
+{
+    if (argc < 2) {
+        cout << "Usage: ./main <problem>" << endl;
+        return 0;
+    }
+    string problem(argv[1]);
+    int n, m, s, f;
+    cin >> n >> m >> s >> f;
+
+    // edge[0][map('a')] = urmatorul nod din starea 0 pe simbolul a;
+    // ca memorie, sunt n vectori de cate m elemente capacitate fiecare
+    // ce urmeaza sa fie initializate
+    vector<vector<int>> edge(n, vector<int>(m));
+
+    // necesar pentru cautarea in adancime la productive si useful
+    vector<list<int>> parents;
+
+    vector<int> start_states;
+    vector<uint8_t> states_mask(n, 0);
+
+    read_input(problem, n, m, s, f, edge, parents, start_states, states_mask);
 
     if (problem == "accessible")
         find_accessible_states(edge, start_states, states_mask);
