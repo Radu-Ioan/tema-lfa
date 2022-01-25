@@ -221,12 +221,7 @@ int main(int argc, char const *argv[])
         find_productive_states(edge, states_mask, parents);
     else if (problem == "useful")
         find_useful_states(edge, start_states, states_mask, parents);
-    else if (problem == "synchronize") {
-        if (s == 0 and f == 0) {
-            find_syncronize_sequence_trivial(edge);
-        } else {
-            cout << "0 0 0\n";
-        }
-    }
+    else if (problem == "synchronize")
+        find_syncronize_sequence_trivial(edge);
     return 0;
 }

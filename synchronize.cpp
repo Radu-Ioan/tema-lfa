@@ -35,33 +35,39 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
 
     vector<int> y = {};
 
-    vector<bool> is_active_state(n, true);
-    vector<bool> is_destination_state(n, false);
+    const uint8_t ACTIVE_FLAG = 1;
+    const uint8_t DESTINATION_FLAG = 2;
+    vector<uint8_t> states_masks(n, ACTIVE_FLAG);
+
     int active_states = 0;
 
     vector<vector<bool>> visited(n, vector<bool>(n, false));
-    // list<pair<pair<int, int>, vector<int>>> bfs_q;
     list<pair<pair<int, int>, vector<int> *>> bfs_q;
     vector<int> empty_vec = {};
 
-
-    // ramane sa vezi ce se intampla la mid1-s.in
     ofstream otup("debug.txt");
 
     while (true) {
         active_states = 0;
 
+        int s0 = -1, t0 = -1;
+
         for (int k = 0; k < n; k++) {
-            if (!is_active_state[k])
+            if (!(states_masks[k] & ACTIVE_FLAG))
                 continue;
 
             int state = k;
             for (size_t i = 0; i < y.size(); i++)
                 state = edge[state][y[i]];
 
-            if (!is_destination_state[state]) {
-                is_destination_state[state] = true;
+            if (!(states_masks[state] & DESTINATION_FLAG)) {
+                states_masks[state] |= DESTINATION_FLAG;
                 ++active_states;
+
+                if (s0 == -1)
+                    s0 = state;
+                else if (t0 == -1)
+                    t0 = state;
             }
         }
 
@@ -71,30 +77,18 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
             break;
 
         for (int i = 0; i < n; i++) {
-            is_active_state[i] = is_destination_state[i];
-            is_destination_state[i] = false;
+            (states_masks[i] & DESTINATION_FLAG)
+                ? states_masks[i] |= ACTIVE_FLAG
+                : states_masks[i] &= ~ACTIVE_FLAG;
+
+            states_masks[i] &= ~DESTINATION_FLAG;
         }
 
         y.clear();
 
-        int s0, t0;
-        int i;
-        for (i = 0; i < n; i++) {
-            if (is_active_state[i]) {
-                s0 = i;
-                break;
-            }
-        }
-        for (i = i + 1; i < n; i++) {
-            if (is_active_state[i]) {
-                t0 = i;
-                break;
-            }
-        }
+        bfs_q.push_front({{s0, t0}, &empty_vec});
 
-
-        bfs_q = {{{s0, t0}, &empty_vec}};
-        for (i = 0; i < n; i++)
+        for (int i = 0; i < n; i++)
             for (int j = 0; j < n; j++)
                 visited[i][j] = false;
 
@@ -126,14 +120,23 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
 
                     break;
                 } else {
-                    auto appended_str = new vector<int>();
-                    *appended_str = *str_to_here;
-                    (*appended_str).emplace_back(c);
+                    auto appended_str
+                        = new vector<int>((*str_to_here).size() + 1);
+
+                    // pun la final sirul cu care s-a ajuns la starea care s-a
+                    // scos din coada la care concatenez sirul in care se
+                    // ajunge starea nevizitata
+                    size_t i = 0;
+                    while (i < (*str_to_here).size()) {
+                        (*appended_str)[i] = (*str_to_here)[i];
+                        i++;
+                    }
+                    (*appended_str)[i] = c;
+
                     bfs_q.push_back({{next_state_i, next_state_j},
                                         appended_str});
-                    // ia sa incerci si cu asta
-                    visited[state_i][state_j] = visited[state_j][state_i]
-                        = true;
+                    visited[next_state_i][next_state_j]
+                        = visited[next_state_j][next_state_i] = true;
                 }
             }
         }
