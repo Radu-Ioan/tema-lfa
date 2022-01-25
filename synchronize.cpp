@@ -108,8 +108,6 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
 
                 if (next_state_i == next_state_j) {
                     y = *str_to_here;
-                    if (y.size() > 0)
-                        delete str_to_here;
                     y.emplace_back(c);
 
                     while (!bfs_q.empty()) {
@@ -139,6 +137,9 @@ void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
                         = visited[next_state_j][next_state_i] = true;
                 }
             }
+
+            if (str_to_here != &empty_vec)
+                delete str_to_here;
         }
 
         for (int a : y)
