@@ -3,6 +3,8 @@
 #include <vector>
 #include <list>
 
+#include "synchronize.h"
+
 using namespace std;
 
 #define DISCOVERED_FLAG (uint8_t) 1
@@ -154,123 +156,6 @@ void find_useful_states(vector<vector<int>> &edge,
             cout << u << endl;
 }
 
-void find_syncronize_sequence_trivial(const vector<vector<int>> &edge)
-{
-    int n = edge.size();
-    int m = edge[0].size();
-
-    // automatul produs: contine toate submultimile de cate 2 elemente,
-    // prod_autom_edges[i][j][c] = urmatoarea stare din starea produs (i, j)
-    // primind simbolul c
-    vector<vector<vector<pair<int, int>>>>
-                prod_autom_edges(n, vector<vector<pair<int, int>>>(
-                                            n, vector<pair<int, int>>(m)));
-
-    for (int i = 0; i < n; i++) {
-        for (int j = i; j < n; j++) {
-            for (int c = 0; c < m; c++) {
-                int next_state_for_i = edge[i][c];
-                int next_state_for_j = edge[j][c];
-
-                prod_autom_edges[i][j][c] = prod_autom_edges[j][i][c]
-                    = {next_state_for_i, next_state_for_j};
-            }
-        }
-    }
-
-    vector<int> x = {};
-    vector<int> y = {};
-
-    vector<bool> is_active_state(n, true);
-    vector<bool> is_destination_state(n, false);
-
-    int active_states = 0;
-
-    vector<vector<bool>> visited(n, vector<bool>(n, false));
-
-    while (true) {
-        active_states = 0;
-
-        for (int k = 0; k < n; k++) {
-            if (!is_active_state[k])
-                continue;
-
-            int state = k;
-            for (size_t i = 0; i < y.size(); i++)
-                state = edge[state][y[i]];
-
-            if (!is_destination_state[state]) {
-                is_destination_state[state] = true;
-                ++active_states;
-            }
-        }
-
-        int s0, t0;
-        int i;
-        for (i = 0; i < n; i++) {
-            if (is_active_state[i]) {
-                s0 = i;
-                break;
-            }
-        }
-        for (i = i + 1; i < n; i++) {
-            if (is_active_state[i]) {
-                t0 = i;
-                break;
-            }
-        }
-
-        list<pair<pair<int, int>, vector<int>>>
-                q = {{{s0, t0}, {}}};
-
-        // aici se refac visited si y
-        for (i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-                visited[i][j] = false;
-        y.clear();
-
-        // bfs ul in automatul produs ca sa gasesc merging sequence
-        while (!q.empty()) {
-            auto [state_pair, str_to_here] = q.front();
-            auto [state_i, state_j] = state_pair;
-            visited[state_i][state_j] = true;
-            q.pop_front();
-
-            for (auto c = 0; c < m; c++) {
-                auto [next_state_i, next_state_j]
-                    = prod_autom_edges[state_i][state_j][c];
-
-                if (visited[next_state_i][next_state_j])
-                    continue;
-
-                if (next_state_i == next_state_j) {
-                    y = str_to_here;
-                    y.emplace_back(c);
-                    q.clear();
-                    break;
-                } else {
-                    str_to_here.emplace_back(c);
-                    q.push_back({{next_state_i, next_state_j}, str_to_here});
-                }
-            }
-        }
-
-        for (int a : y)
-            x.emplace_back(a);
-
-        if (active_states <= 1)
-            break;
-
-        for (i = 0; i < n; i++) {
-            is_active_state[i] = is_destination_state[i];
-            is_destination_state[i] = false;
-        }
-    }
-
-    for (size_t i = 0; i < x.size(); i++)
-        cout << x[i] << ' ';
-    cout << endl;
-}
 
 int main(int argc, char const *argv[])
 {
@@ -286,7 +171,7 @@ int main(int argc, char const *argv[])
 
     // edge[0][map('a')] = urmatorul nod din starea 0 pe simbolul a;
     // ca memorie, sunt n vectori de cate m elemente capacitate fiecare
-    // urmeaza sa fie initializate
+    // ce urmeaza sa fie initializate
     vector<vector<int>> edge(n, vector<int>(m));
 
     // necesar pentru cautarea in adancime la productive si useful
@@ -336,7 +221,12 @@ int main(int argc, char const *argv[])
         find_productive_states(edge, states_mask, parents);
     else if (problem == "useful")
         find_useful_states(edge, start_states, states_mask, parents);
-    else if (problem == "synchronize")
-        find_syncronize_sequence_trivial(edge);
+    else if (problem == "synchronize") {
+        if (s == 0 and f == 0) {
+            find_syncronize_sequence_trivial(edge);
+        } else {
+            cout << "0 0 0\n";
+        }
+    }
     return 0;
 }
