@@ -8,7 +8,8 @@
 
 using namespace std;
 
-
+/* se fac tranzitii cu sirul y la intrare din fiecare stare care e marcata
+ * activa*/
 static void depart_from_active_states(const vector<vector<int>> &edge,
                     vector<uint8_t> &states_masks, int &active_states,
                     const vector<int> &y, int &s0, int &t0)
@@ -35,6 +36,11 @@ static void depart_from_active_states(const vector<vector<int>> &edge,
     }
 }
 
+/*  
+    se marcheaza ca active doar starile in care s-au terminat parcurgerile pe
+    simbolurile din sirul y din starile active de la pasul anterior, i.e
+    starile marcate ca destinatie in functia depart_from_active_states()
+*/
 static void set_the_new_active_states(vector<uint8_t> &states_masks)
 {
     int n = states_masks.size();
@@ -47,6 +53,12 @@ static void set_the_new_active_states(vector<uint8_t> &states_masks)
     }
 }
 
+/*
+    se cauta un sir care sa aduca cele 2 stari s0 si t0 in aceeasi stare,
+    pastrand acest sir in variabila y;
+    bfs_q contine la momentul apelului doar perechea {s0, t0};
+    intoarce starea in care se ajunge din s0 si t0 pornind cu y
+*/
 static int bfs(list<pair<pair<int, int>, vector<int> *>> &bfs_q,
             vector<vector<bool>> &visited, const vector<vector<int>> &edge,
             vector<int> &y, vector<int> *empty_vec_address)
@@ -83,21 +95,19 @@ static int bfs(list<pair<pair<int, int>, vector<int> *>> &bfs_q,
                 auto str_to_expand
                     = new vector<int>((*str_to_here).size() + 1);
 
-                // pun la final sirul cu care s-a ajuns la starea care s-a
-                // scos din coada la care concatenez sirul in care se
-                // ajunge starea nevizitata
-                size_t k = 0;
-                while (k < (*str_to_here).size()) {
-                    (*str_to_expand)[k] = (*str_to_here)[k];
-                    k++;
-                }
-                (*str_to_expand)[k] = c;
+                // pun la final sirul cu care s-a ajuns in starea care s-a
+                // scos din coada (i, j) concatenat cu simbolul pe care se
+                // ajunge in starea nevizitata (next_i, next_j)
+                *str_to_expand = *str_to_here;
+                str_to_expand->emplace_back(c);
 
                 bfs_q.push_back({{next_i, next_j}, str_to_expand});
                 visited[next_i][next_j] = visited[next_j][next_i] = true;
             }
         }
 
+        // empty_vec (din alta functie) (care e egal cu *empty_vec_address) e
+        // alocat pe stiva
         if (str_to_here != empty_vec_address)
             delete str_to_here;
     }
@@ -105,7 +115,11 @@ static int bfs(list<pair<pair<int, int>, vector<int> *>> &bfs_q,
     return singleton_state;
 }
 
-/* asigura ca starea in care duce sirul de sincronizare este marcata ca finala
+/*
+    asigura ca starea in care duce sirul de sincronizare este printre cele
+    finale;
+    se afiseaza de aici sirul suplimentar care trebuie concatenat sirului de
+    sincronizare gasit
  */
 static void go_until_a_final_state(int state,
                         const vector<vector<int>> &edge,
@@ -114,8 +128,6 @@ static void go_until_a_final_state(int state,
     if (states_masks[state] & FINAL_STATE_FLAG)
         return;
 
-    // starea de prelucrat, parintele din care s-a ajuns in stare, simbolul pe
-    // care s-a ajuns in stare
     list<int> q = {state};
 
     int n = edge.size();
@@ -125,8 +137,17 @@ static void go_until_a_final_state(int state,
         states_masks[i] &= ~VISITED;
     states_masks[state] |= VISITED;
 
+    // parent[i] = starea din care s-a ajuns (prin bfs-ul de mai jos) in starea
+    // i
     vector<int> parent(n, -1);
+    // symbol[i] = simbolul pe care s-a ajuns in starea i din parent[i]
     vector<int> symbol(n, -1);
+    // sirul de simboluri/caractere suplimentare ce trebuie dat la intrare din
+    // starea de sincronizare state pentru a ajunge intr-o stare finala;
+    // deoarece mai intai trebuie sa gasesc o stare finala si apoi sa merg din
+    // parinte in parinte pana la state, va fi initializat in ordine inversa,
+    // si de aceea se afiseaza continutul sau de la coada la cap la sfaritul
+    // functiei
     vector<int> extra_path{};
 
     while (!q.empty()) {
