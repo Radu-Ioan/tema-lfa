@@ -3,7 +3,7 @@ CFLAGS = -Wall -std=c++17 -g
 # CFLAGS = -Wall -std=c++17
 
 
-BIN = main
+BIN = states_search
 SOURCES = main.cpp synchronize.cpp
 OBJ = $(patsubst %.cpp,%.o,$(SOURCES))
 
@@ -24,8 +24,7 @@ debug: $(SOURCES)
 run: $(BIN)
 	./$< $(problem)
 
-labyrinth:
-	$(CC) -o $(BIN) bonus.cpp $(CFLAGS)
+labyrinth: build
 
 clean:
 	rm -rf *.o debug $(BIN)
