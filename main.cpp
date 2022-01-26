@@ -75,9 +75,11 @@ void reverse_productive_dfs(int u, const vector<vector<int>> &edge,
 
 void reverse_productive_bfs(int u, const vector<vector<int>> &edge,
                             vector<uint8_t> &states_masks,
-                            vector<list<int>> &parents)
+                            const vector<list<int>> &parents)
 {
     list<int> queue = {u};
+    states_masks[u] |= PRODUCTIVE_FLAG;
+
     while (!queue.empty()) {
         int v = queue.front();
         queue.pop_front();
@@ -108,7 +110,7 @@ void productive_dfs(int u, const vector<vector<int>> &edge,
         }
 
         if (is_productive(v, states_masks)) {
-            // reverse_productive_dfs(v, edge, states_masks, parents);
+            // se poate pune si dfs, dar am preferat asa
             reverse_productive_bfs(v, edge, states_masks, parents);
         }
 
@@ -129,9 +131,10 @@ void find_productive_states(const vector<vector<int>> &edge,
                             vector<uint8_t> &states_masks,
                             const vector<list<int>> &parents)
 {
+    // aici productiv are sensul de descoperit
     for (size_t u = 0; u < edge.size(); u++)
-        if (!is_discovered(u, states_masks))
-            productive_dfs(u, edge, states_masks, parents);
+        if (is_final_state(u, states_masks) && !is_productive(u, states_masks))
+            reverse_productive_bfs(u, edge, states_masks, parents);
 
     for (size_t u = 0; u < edge.size(); u++)
         if (is_productive(u, states_masks))
@@ -143,6 +146,7 @@ void find_useful_states(vector<vector<int>> &edge,
                       vector<uint8_t> &states_masks,
                       const vector<list<int>> &parents)
 {
+    // aici descoperit are sensul de accesibil
     for (int u : start_states)
         if (!is_discovered(u, states_masks))
             productive_dfs(u, edge, states_masks, parents);
