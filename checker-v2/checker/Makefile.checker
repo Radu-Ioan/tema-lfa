@@ -1,0 +1,17 @@
+CC = gcc
+CFLAGS = -Wall -g
+
+all: build
+
+build: check
+
+check: check.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+.PHONY: clean
+
+run: build
+	./check $(dfa) $(sequence)
+
+clean:
+	rm -f *.o *~ check
