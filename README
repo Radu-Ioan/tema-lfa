@@ -1,30 +1,4 @@
-336CA Zamfirescu Radu Ioan
+In sol/ este implementarea cea mai recenta si cea relevanta.
 
-Task 1 - accessible
-Am aplicat un simplu dfs plecand numai din starile date initiale la input, iar
-starile accesibile erau reprezentate de toate starile prin care se ajungea cel
-putin o data prin aceste parcurgeri.
-
-Task 2 - productive
-La citire, am mai format un vector de parinti in care am retinut ce noduri
-pot ajunge in fiecare stare. Formal: parents[i] = multimea tuturor starilor
-care au cel putin o tranzitie care le aduce in starea i.
-Pentru a gasi starile productive, am pornit o cautare inapoi (folosindu-ma de
-parents) din fiecare stare finala nevizitata in care marcam ca productive toate
-nodurile intalnite in aceasta cautare. Prima oara am implementat cu dfs
-cautarea inapoi, dar pentru a nu mai folosi apeluri recursive, am ales sa
-folosesc bfs, care avea acelasi efect fiind vorba de vizitarea unor noduri
-dintr-un graf.
-
-Task 3 - useful
-Am pornit un dfs ca la 1, iar cand dadeam de o stare final incepeam
-un reverse bfs sa vad toate starile care pot ajunge in aceasta stare finala
-pentru a le marca ca productive.
-
-Task 4 - synchronize
-Am folosit Algorithm 2 prezentat in Homing.pdf dat la surse.
-Ca reprezentare, am folosit un cate o masca de biti pentru fiecare stare pentru
-a vedea daca e activa (i.e se ajunge in ea pornind dintr-o stare din automat
-avand sirul x la intrare - sir x care se construieste pe parcursul algoritmului
-si care in cod nu se memoreaza, pentru ca se afiseaza direct acel sir y dupa
-fiecare iteratie).
+In old/ sunt fisierele cu implementarea pentru checkerul vechi, modele pentru
+makefile si explicatiile necesare pentru rulare. Folderul poate fi ignorat.
